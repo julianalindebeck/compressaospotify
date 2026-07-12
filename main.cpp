@@ -14,7 +14,7 @@ int main(){
 
     // recuperar N registros dos arquivos e menu bla bla
 
-    cout << "O que gostaria de testar Professora Bárbara Quintela?" << endl;
+    cout << endl << "O que gostaria de testar Professora Bárbara Quintela?" << endl;
     cout << "1. Comprimir uma string passada como parâmetro (único que tem por enquanto :_( ))" << endl;
     cout << "Escolha a opção: ";
     
