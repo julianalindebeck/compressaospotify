@@ -4,7 +4,7 @@
 
 # Compilação e execução 
 No terminal, dentro da pasta do projeto, execute:
-g++ main.cpp Huffman.cpp ListaSEncad.cpp No.cpp -o programa
+g++ main.cpp Huffman.cpp ListaSEncad.cpp No.cpp LZ77.cpp -o programa
 
 E logo em seguida:
 ./programa
