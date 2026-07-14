@@ -111,3 +111,22 @@ void Huffman:: gerarCodigo(No* q, string cod, Simbolo simbolos[], int tam){
         gerarCodigo(q->getDir(), cod + "1", simbolos, tam);
     }
 }
+
+string Huffman:: descompressao (string str){
+    string descomprimida = "";
+    No* temp = raiz;
+    for (char c: str){
+        if (c == '0'){
+            temp = temp->getEsq();
+        }
+        else{
+            temp = temp->getDir();
+        }
+
+        if (temp->getCaractere() != '\0'){
+            descomprimida += temp->getCaractere();
+            temp = raiz;
+        }
+    }
+    return descomprimida;
+}

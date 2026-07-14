@@ -15,6 +15,7 @@ class Huffman{
     void destruir(No* inicio);
     string constroi(string str);
     string compressao(string str, Simbolo simbolos[], int tam);
+    string descompressao(string str);
     void gerarCodigo(No* q, string cod, Simbolo simbolos[], int tam);
     int montaTabela(string str, Simbolo* simbolos, int tam);
 };

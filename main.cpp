@@ -9,7 +9,7 @@ string comprime(string str, int metodo){
         Huffman* novaCompressao = new Huffman();
         return novaCompressao->constroi(str);
     }
-    if (metodo == 1){
+    else if (metodo == 1){
         LZ77* novaCompressao = new LZ77();
         return novaCompressao->comprime(str);
     }
@@ -17,7 +17,11 @@ string comprime(string str, int metodo){
 }
 
 string descomprime(string str, int metodo){
-    if (metodo == 1){
+    if (metodo == 0){
+        Huffman* novaDescompressao = new Huffman();
+        return novaDescompressao->descompressao(novaDescompressao->constroi(str));
+    }
+    else if (metodo == 1){
         LZ77* novaDescompressao = new LZ77();
         return novaDescompressao->descomprime(str);
     }
@@ -63,6 +67,15 @@ int main(){
         }
         taxaCompressao = (float)(str.length() - tamanhoCompressao)/ str.length();
         cout << "Taxa de Compressão: " << taxaCompressao*100 << "%" << endl;
+
+        if (metodo == 0){
+            cout << endl << "Deseja descomprimir? (Y/N) ";
+            char yn;
+            cin >> yn;
+            if (yn == 'Y' || yn == 'y'){
+                cout << endl << "String descomprimida: " << descomprime(str, metodo) << endl;
+            }
+        }
     }
     else if(opcao == 2){
         string str;
@@ -70,7 +83,7 @@ int main(){
         cin >> str;
 
         cout << endl << "Agora escolha o método! " << endl;
-        cout << "0. Huffman" << endl;
+        // cout << "0. Huffman" << endl;
         cout << "1. LZ77" << endl;
         cout << "Escolha a opção: ";
 
