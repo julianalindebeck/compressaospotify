@@ -1,13 +1,18 @@
 #include <iostream>
 #include <string>
 #include "Huffman.h"
+#include "LZ77.h"
 using namespace std;
 
 string comprime(string str, int metodo){
     if (metodo == 0){
-    }
         Huffman* novaCompressao = new Huffman();
         return novaCompressao->constroi(str);
+    }
+    if (metodo == 1){
+        LZ77* novaCompressao = new LZ77();
+        return novaCompressao->comprime(str);
+    }
 }
 
 int main(){
@@ -15,7 +20,8 @@ int main(){
     // recuperar N registros dos arquivos e menu bla bla
 
     cout << endl << "O que gostaria de testar Professora Bárbara Quintela?" << endl;
-    cout << "1. Comprimir uma string passada como parâmetro (único que tem por enquanto :_( ))" << endl;
+    cout << "1. Comprimir uma string passada como parâmetro " << endl;
+    cout << "2. Descomprimir uma string passada como parâmetro " << endl;
     cout << "Escolha a opção: ";
     
     int opcao;
@@ -28,7 +34,8 @@ int main(){
         cin >> str;
 
         cout << endl << "Agora escolha o método! " << endl;
-        cout << "0. Huffman (só temos esse kkkk)" << endl;
+        cout << "0. Huffman" << endl;
+        cout << "1. LZ77" << endl;
         cout << "Escolha a opção: ";
 
         cin >> metodo;
@@ -48,8 +55,5 @@ int main(){
         taxaCompressao = (float)(str.length() - tamanhoCompressao)/ str.length();
         cout << "Taxa de Compressão: " << taxaCompressao*100 << "%" << endl;
     }
-
-
-
     return 0;
 }
