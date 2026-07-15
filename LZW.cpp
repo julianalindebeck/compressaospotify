@@ -1,7 +1,8 @@
 #include "LZW.h"
 #include <iostream>
-using namespace std;
 #include <string>
+using namespace std;
+
 
 LZW::LZW(){
     
@@ -10,15 +11,12 @@ LZW::LZW(){
 LZW::~LZW(){}
 
 string LZW::comprime(string str){
-    int codigo[1000];
-    string dic[1000];
-    int tamDic = 0;
     bool encontrado;
 
     for(int i = 0; i < str.length(); i++) {
         encontrado = false;
         
-        for(int j = 0; j <= i; j++) {
+        for(int j = 0; j < tamDic; j++) {
             if (dic[j][0] == str[i]){
                 encontrado = true;
                 break;
@@ -32,7 +30,6 @@ string LZW::comprime(string str){
    }
    
     string prefixo = string(1, str[0]);
-    int p;
     int cont = 0;
 
     for(int j = 0; j < str.length() - 1; j++) {
@@ -62,15 +59,33 @@ string LZW::comprime(string str){
         }
     }
 
+    int p = -1;
+    for (int i = 0; i < tamDic; i++) {
+        if(dic[i] == prefixo) {
+            p = i;
+            break;
+        }
+    }
+
+    if (p != -1) {
+        codigo[cont++] = p;
+    }
+
     string stringComprimida = "";
     for (int i = 0; i < cont; i++) {
         stringComprimida += "(" + to_string(codigo[i]) + ")";
         if(i < cont - 1)
-            stringComprimida += ", ";
+            stringComprimida += ",";
     }
     return stringComprimida;
 }
 
 string LZW::descomprime(string str){
-    
+    string descomprimida= "";
+    for(int i=0; i<str.length(); i++){
+        if(str[i] == '('){
+            descomprimida+=dic[str[i+1]-'0'];
+        }
+    }
+    return descomprimida;
 }

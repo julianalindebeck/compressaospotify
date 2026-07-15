@@ -14,11 +14,10 @@ string comprime(string str, int metodo){
         LZ77* novaCompressao = new LZ77();
         return novaCompressao->comprime(str);
     }
-    else if(metodo == 2){
+    else{
         LZW* novaCompressao = new LZW();
         return novaCompressao->comprime(str);
     }
-    return "";
 }
 
 string descomprime(string str, int metodo){
@@ -29,6 +28,10 @@ string descomprime(string str, int metodo){
     else if (metodo == 1){
         LZ77* novaDescompressao = new LZ77();
         return novaDescompressao->descomprime(str);
+    }
+    else if(metodo == 2){
+        LZW* novaDescompressao = new LZW();
+        return novaDescompressao->descomprime(novaDescompressao->comprime(str)); 
     }
     return "";
 }
@@ -74,7 +77,7 @@ int main(){
         taxaCompressao = (float)(str.length() - tamanhoCompressao)/ str.length();
         cout << "Taxa de Compressão: " << taxaCompressao*100 << "%" << endl;
 
-        if (metodo == 0){
+        if (metodo == 0 || metodo == 2){
             cout << endl << "Deseja descomprimir? (Y/N) ";
             char yn;
             cin >> yn;
@@ -82,6 +85,7 @@ int main(){
                 cout << endl << "String descomprimida: " << descomprime(str, metodo) << endl;
             }
         }
+        
     }
     else if(opcao == 2){
         string str;
