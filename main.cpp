@@ -2,6 +2,7 @@
 #include <string>
 #include "Huffman.h"
 #include "LZ77.h"
+#include "LZW.h"
 using namespace std;
 
 string comprime(string str, int metodo){
@@ -11,6 +12,10 @@ string comprime(string str, int metodo){
     }
     else if (metodo == 1){
         LZ77* novaCompressao = new LZ77();
+        return novaCompressao->comprime(str);
+    }
+    else if(metodo == 2){
+        LZW* novaCompressao = new LZW();
         return novaCompressao->comprime(str);
     }
     return "";
@@ -49,6 +54,7 @@ int main(){
         cout << endl << "Agora escolha o método! " << endl;
         cout << "0. Huffman" << endl;
         cout << "1. LZ77" << endl;
+        cout << "2. LZW" << endl;
         cout << "Escolha a opção: ";
 
         cin >> metodo;
