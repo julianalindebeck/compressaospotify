@@ -5,6 +5,7 @@
 #include <random>
 #include <string>
 #include <sstream>
+#include <iomanip>  
 
 using namespace std;
 
@@ -99,7 +100,7 @@ string manipulacaoArquivos::lerArquivoCompressao(const char *caminho, int tamN){
             if (extensao == ".csv") {
                 string caminhoCompleto = string(caminho) + "/" + nomeArquivo;
 
-                linhasLidasConcatenadas += nomeArquivo + ": ";
+                linhasLidasConcatenadas += nomeArquivo + ":\n";
 
                 int totalLinhas = contarLinhas(caminhoCompleto);
                 if (totalLinhas == 0) continue; 
@@ -204,6 +205,20 @@ string manipulacaoArquivos::descomprime(string str, int metodo){
     }
 }
 
+void manipulacaoArquivos::escreveBinario(string comprimida){
+    ofstream arquivo_binario("spotifyComp.bin", ios::out | ios::binary);
+    if (!arquivo_binario.is_open()) {
+        cerr << endl << "Erro ao abrir o arquivo para escrita binária!" << endl;
+    }
+    arquivo_binario.write(comprimida.data(), comprimida.size());
+    arquivo_binario.close();
+    cout << endl << "Arquivo binário gravado com sucesso!" << endl;
+
+    string aux = arquivos;
+    aux += + "/spotifyComp.bin";
+    ofstream arquivo(aux.c_str());
+}
+
 void manipulacaoArquivos::comprime(int metodo){
     // esse método que vai fazer tudo: pega o método, ai le os arquivos, pegando a string.
     string arquivosRecuperados = lerArquivoCompressao(arquivos, n);
@@ -213,10 +228,75 @@ void manipulacaoArquivos::comprime(int metodo){
 
     cout << "Comprimida: " << comprimida;
     // dependendo do método, escrevemos as infos no arquivo antes sobre o método
+
+    string infoMetodo;
+    if (metodo == 0){
+        // escrever o nome do método + a árvore no arquivo
+        infoMetodo += "HUFFMAN\n";
+    }
+    else if (metodo == 1){
+        // escrever só o nome do método para descomprimir
+        infoMetodo += "LZ77\n";
+    }
+    else{
+        // escrever o nome + a tabela no arquivo
+        infoMetodo += "LZW\n";
+    }
+
+    // taxa compressao 
+
+    int tamanhoCompressao;
+    if (comprimida.length() % 8 == 0){
+        tamanhoCompressao = comprimida.length()/8;
+    }
+    else{
+        tamanhoCompressao = (comprimida.length()/8) + 1;
+    }
+    taxa = (float)(arquivosRecuperados.length() - tamanhoCompressao)/ arquivosRecuperados.length();
+    taxa *= 100;
+
+    infoMetodo += comprimida;
+
     // escrevemos o arquivo binário com a compressao da string concatenada
     // salva o arquivo .bin no diretório
+    escreveBinario(infoMetodo);
 
-    // tem que fazer a taxa de compressao tambem
+}
+
+float manipulacaoArquivos::getTaxa(){
+    return taxa;
+}
+
+void manipulacaoArquivos::escreveTaxaTXT(float taxas[], int metodos[], int vezes){
+    ofstream meuArquivo("saida.txt");
+
+    if (meuArquivo.is_open()) {
+        float somaTaxas = 0;
+        meuArquivo << "================================= ANÁLISE DE TAXAS DE COMPRESSÃO ==================================\n";
+        for (int i = 0; i < vezes; i++){
+            somaTaxas += taxas[i];
+            meuArquivo << "========== TAXA " << i + 1 << " ==========\n";
+            meuArquivo << "Taxa de compressão: " << fixed << setprecision(2) << taxas[i] << "%\n";
+            if (metodos[i] == 0){
+                meuArquivo << "Método de compressão utilizado: HUFFMAN\n";
+            }
+            else if (metodos[i] == 1){
+                meuArquivo << "Método de compressão utilizado: LZ77\n";
+            }
+            else{
+                meuArquivo << "Método de compressão utilizado: LZW\n";
+            }
+        }
+        // taxa media final
+
+        meuArquivo << "========== TAXA MÉDIA ==========\n";
+        meuArquivo << "Taxa de compressão média das " << vezes << " compressões: " << fixed << setprecision(2) << somaTaxas/vezes << "%\n";       
+
+        meuArquivo.close();
+        cout << endl << "Arquivo gravado com sucesso!" << endl;
+    } else {
+        cout << endl << "Erro ao abrir o arquivo." << endl;
+    }
 }
 
 void manipulacaoArquivos::descomprime(int metodo){
