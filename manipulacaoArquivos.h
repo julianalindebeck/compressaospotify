@@ -27,6 +27,8 @@ class manipulacaoArquivos {
         void descomprime(int metodo);
         float getTaxa();
         void escreveTaxaTXT(float taxas[], int metodos[], int vezes);
+        void tipoDescompressao();
+        void escreveDescompressaoTXT(string dadosEscrever, int metodo);
 
 };
 

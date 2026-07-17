@@ -58,40 +58,76 @@ string LZ77::comprime(string str){
 string LZ77::descomprime(string str){
     CodigoLZ77* codigo = new CodigoLZ77[str.length()];
     int cont = 0;
-    for(int i = 0; i < str.length()-6; i++){
-        if(str[i] == '('){
-            codigo[cont].pos = str[i+1] - '0';
-            codigo[cont].seq = str[i+3] - '0';
-            if(str[i+5] == 'n' && str[i+6] == 'u'){
-                codigo[cont].posSeq = '\0';
+    
+    int i = 0;
+    while (i < str.length()) {
+        if (str[i] == '(') {
+            i++;
+            
+            string s_pos = "";
+            while (i < str.length() && str[i] != ',') {
+                s_pos += str[i];
+                i++;
             }
-            else{
-                codigo[cont].posSeq = str[i+5];
+            i++;
+            
+            string s_seq = "";
+            while (i < str.length() && str[i] != ',') {
+                s_seq += str[i];
+                i++;
             }
-            cont++;
+            i++; 
+            
+            string s_char = "";
+            while (i < str.length() && str[i] != ')') {
+                s_char += str[i];
+                i++;
+            }
+            
+            if (!s_pos.empty() && !s_seq.empty()) {
+                codigo[cont].pos = stoi(s_pos);
+                codigo[cont].seq = stoi(s_seq);
+                
+                if (s_char == "null") {
+                    codigo[cont].posSeq = '\0';
+                } else if (!s_char.empty()) {
+                    codigo[cont].posSeq = s_char[0];
+                } else {
+                    codigo[cont].posSeq = '\0';
+                }
+                cont++;
+            }
         }
+        i++;
     }
+
     string descomprimida = "";
     for(int i = 0; i < cont; i++){
         if(codigo[i].pos == 0 && codigo[i].seq == 0){
             descomprimida += codigo[i].posSeq;
         }
         else{
-            string temp = "";
-            if(codigo[i].pos < codigo[i].seq){
-                for(int j = 0; j < nb; j++){
-                    temp += (descomprimida.substr(descomprimida.length() - codigo[i].pos, codigo[i].pos));
+            if (codigo[i].pos <= descomprimida.length()) {
+                int inicioSubstr = descomprimida.length() - codigo[i].pos;
+                
+                if(codigo[i].pos < codigo[i].seq){
+                    string temp = "";
+                    for(int j = 0; j < nb; j++){
+                        temp += descomprimida.substr(inicioSubstr, codigo[i].pos);
+                    }
+                    descomprimida += temp.substr(0, codigo[i].seq);
                 }
-                string novaTemp = temp.substr(0,codigo[i].seq);
-                descomprimida += novaTemp;
+                else{
+                    descomprimida += descomprimida.substr(inicioSubstr, codigo[i].seq);
+                }
             }
-            else{
-                temp += (descomprimida.substr(descomprimida.length() - codigo[i].pos, codigo[i].seq));
-                descomprimida += temp;
-            }
-            if(codigo[i].posSeq != '\0')
+            
+            if(codigo[i].posSeq != '\0') {
                 descomprimida += codigo[i].posSeq;
+            }
         }
     }
+
+    delete[] codigo;
     return descomprimida;
 }

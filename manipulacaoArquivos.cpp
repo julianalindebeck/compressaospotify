@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>  
+#include <iterator>
 
 using namespace std;
 
@@ -100,7 +101,7 @@ string manipulacaoArquivos::lerArquivoCompressao(const char *caminho, int tamN){
             if (extensao == ".csv") {
                 string caminhoCompleto = string(caminho) + "/" + nomeArquivo;
 
-                linhasLidasConcatenadas += nomeArquivo + ":\n";
+                linhasLidasConcatenadas += "\n" + nomeArquivo + ":\n\n";
 
                 int totalLinhas = contarLinhas(caminhoCompleto);
                 if (totalLinhas == 0) continue; 
@@ -160,6 +161,8 @@ string manipulacaoArquivos::lerArquivoCompressao(const char *caminho, int tamN){
                             linhasLidasConcatenadas += celulaAtual + " ";
                         }
 
+                        linhasLidasConcatenadas += "\n";
+
                         contVetor++;
                     }
                     contLinhas++;
@@ -206,17 +209,20 @@ string manipulacaoArquivos::descomprime(string str, int metodo){
 }
 
 void manipulacaoArquivos::escreveBinario(string comprimida){
-    ofstream arquivo_binario("spotifyComp.bin", ios::out | ios::binary);
+    string caminhoCompleto = string(arquivos) + "/spotifyComp.bin";
+
+    ofstream arquivo_binario(caminhoCompleto.c_str(), ios::out | ios::binary);
+    
     if (!arquivo_binario.is_open()) {
-        cerr << endl << "Erro ao abrir o arquivo para escrita binária!" << endl;
+        cerr << endl << "Erro ao abrir o arquivo para escrita binária em: " << caminhoCompleto << endl;
+        return;
     }
+    
     arquivo_binario.write(comprimida.data(), comprimida.size());
     arquivo_binario.close();
-    cout << endl << "Arquivo binário gravado com sucesso!" << endl;
+    
+    cout << endl << "Arquivo binário gravado com sucesso em: " << caminhoCompleto << endl;
 
-    string aux = arquivos;
-    aux += + "/spotifyComp.bin";
-    ofstream arquivo(aux.c_str());
 }
 
 void manipulacaoArquivos::comprime(int metodo){
@@ -268,7 +274,8 @@ float manipulacaoArquivos::getTaxa(){
 }
 
 void manipulacaoArquivos::escreveTaxaTXT(float taxas[], int metodos[], int vezes){
-    ofstream meuArquivo("saida.txt");
+    string caminhoCompleto = string(arquivos) + "/saida.txt";
+    ofstream meuArquivo(caminhoCompleto.c_str());
 
     if (meuArquivo.is_open()) {
         float somaTaxas = 0;
@@ -299,6 +306,94 @@ void manipulacaoArquivos::escreveTaxaTXT(float taxas[], int metodos[], int vezes
     }
 }
 
+void manipulacaoArquivos::tipoDescompressao(){
+    string caminhoCompleto = string(arquivos) + "/spotifyComp.bin";
+
+    ifstream arquivo_binario(caminhoCompleto.c_str(), ios::in | ios::binary);
+
+    if (!arquivo_binario.is_open()) {
+        cerr << endl << "Erro ao abrir o arquivo binario para leitura!" << endl;
+        return;
+    }
+
+    string metodo;
+    getline(arquivo_binario, metodo); 
+
+    arquivo_binario.close();
+
+    if (metodo == "HUFFMAN") {
+        descomprime(0);
+    } 
+    else if (metodo == "LZ77") {
+        descomprime(1);
+    } 
+    else{
+        descomprime(2);
+    } 
+
+}
+
 void manipulacaoArquivos::descomprime(int metodo){
     // esse método que vai fazer tudo
+    string caminhoCompleto = string(arquivos) + "/spotifyComp.bin";
+
+    ifstream arquivo_binario(caminhoCompleto.c_str(), ios::in | ios::binary);
+
+    if (!arquivo_binario.is_open()) {
+        cerr << endl << "Erro ao abrir o arquivo binario para leitura!" << endl;
+        return;
+    }
+
+    arquivo_binario.ignore(20, '\n');
+
+    if (metodo == 0){
+        // descomprime por huffman
+        cout << endl << "DESCOMPRIMINDO POR HUFFMAN..." << endl;
+        // precisa pegar a árvore passada e dps descomprimir
+        string dadosComprimidos((istreambuf_iterator<char>(arquivo_binario)), istreambuf_iterator<char>());
+    }
+    else if (metodo == 1){
+        // descomprime por LZ77
+        cout << endl << "DESCOMPRIMINDO POR LZ77..." << endl;
+        string dadosComprimidos((istreambuf_iterator<char>(arquivo_binario)), istreambuf_iterator<char>());
+        string dadosDescomprimidos = descomprime(dadosComprimidos, 1);
+        escreveDescompressaoTXT(dadosDescomprimidos, 1);
+    }
+    else{
+        // descomprime por LZW
+        cout << endl << "DESCOMPRIMINDO POR LZW..." << endl;
+        // precisa pegar a tabela usada e depois descomprimir
+        string dadosComprimidos((istreambuf_iterator<char>(arquivo_binario)), istreambuf_iterator<char>());
+    }
+
+    arquivo_binario.close();
+}
+
+void manipulacaoArquivos::escreveDescompressaoTXT(string dadosEscrever, int metodo){
+    string caminhoCompleto = string(arquivos) + "/spotifyDesc.txt";
+    ofstream meuArquivo(caminhoCompleto.c_str());
+
+    if (meuArquivo.is_open()) {
+        float somaTaxas = 0;
+        meuArquivo << "================================= DADOS DESCOMPRIMIDOS ==================================\n";
+        if (metodo == 0){
+            meuArquivo << "Método de descompressão utilizado: HUFFMAN\n";
+        }
+        else if (metodo == 1){
+            meuArquivo << "Método de descompressão utilizado: LZ77\n";
+        }
+        else{
+            meuArquivo << "Método de descompressão utilizado: LZW\n";
+        }
+
+        meuArquivo << dadosEscrever;
+
+        meuArquivo << "\n================================= FIM DESCOMPRESSÃO ==================================\n";
+        
+        meuArquivo.close();
+        cout << endl << "Arquivo gravado com sucesso!" << endl;
+    } else {
+        cout << endl << "Erro ao abrir o arquivo." << endl;
+    }
+
 }

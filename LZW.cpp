@@ -5,7 +5,8 @@ using namespace std;
 
 
 LZW::LZW(){
-    
+    dic = new string[capacidadeDic];
+    codigo = new int[capacidadeCod];
 }
 
 LZW::~LZW(){}
@@ -26,11 +27,13 @@ string LZW::comprime(string str){
         if(!encontrado){
             dic[tamDic] = string(1, str[i]);
             tamDic++;
+            if (tamDic == capacidadeDic){
+                aumentaDic();
+            }
         }
    }
    
     string prefixo = string(1, str[0]);
-    int cont = 0;
 
     for(int j = 0; j < str.length() - 1; j++) {
         char c = str[j + 1];
@@ -53,8 +56,14 @@ string LZW::comprime(string str){
                 }
             }
         
-            codigo[cont++] = p;
+            codigo[tamCod++] = p;
+            if (tamCod == capacidadeCod){
+                aumentaCod();
+            }
             dic[tamDic++] = prefixo + c;
+            if (tamDic == capacidadeDic){
+                aumentaDic();
+            }
             prefixo = string(1, c);
         }
     }
@@ -68,13 +77,16 @@ string LZW::comprime(string str){
     }
 
     if (p != -1) {
-        codigo[cont++] = p;
+        codigo[tamCod++] = p;
+        if (tamCod == capacidadeCod){
+            aumentaCod();
+        }
     }
 
     string stringComprimida = "";
-    for (int i = 0; i < cont; i++) {
+    for (int i = 0; i < tamCod; i++) {
         stringComprimida += "(" + to_string(codigo[i]) + ")";
-        if(i < cont - 1)
+        if(i < tamCod - 1)
             stringComprimida += ",";
     }
     return stringComprimida;
@@ -88,4 +100,30 @@ string LZW::descomprime(string str){
         }
     }
     return descomprimida;
+}
+
+void LZW::aumentaDic(){
+    capacidadeDic *= 2;
+    string* novoDic = new string[capacidadeDic];
+
+    for (int i = 0; i < tamDic; i++){
+        novoDic[i] = dic[i];
+    }
+
+    delete [] dic;
+
+    dic = novoDic;
+}
+
+void LZW::aumentaCod(){
+    capacidadeCod *= 2;
+    int* novoCod = new int[capacidadeCod];
+
+    for (int i = 0; i < tamDic; i++){
+        novoCod[i] = codigo[i];
+    }
+
+    delete [] codigo;
+
+    codigo = novoCod;
 }

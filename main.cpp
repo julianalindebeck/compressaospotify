@@ -66,8 +66,8 @@ int main(int argc, char *argv[]){
             cin >> opcao;
             
             if (opcao == 1){
-                // descomprime os arquivos e salva no diretorio (acho que tem que salvar no arquivo o método
-                // tipo o HUFFMAN salvar a árvore, e no LZW salvar a nossa biblioteca)
+                // descomprime os arquivos e salva no diretorio 
+                gerenciador.tipoDescompressao();
             }
             else if (opcao == 2){
                 cout << endl << "ESCOLHA O MÉTODO DE COMPRESSÃO PARA OS REGISTROS" << endl;
