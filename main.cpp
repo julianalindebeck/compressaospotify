@@ -46,6 +46,7 @@ int main(int argc, char *argv[]){
                 cout << "Escolha a opção: ";
                 int metodo;
                 cin >> metodo;
+                cout << endl << "Comprimindo..." << endl;
 
                 gerenciador.comprime(metodo);
                 taxasCompressao[vezesCompressao] = gerenciador.getTaxa();
@@ -86,6 +87,7 @@ int main(int argc, char *argv[]){
                 cout << "Escolha a opção: ";
                 int metodo;
                 cin >> metodo;
+                cout << endl << "Comprimindo..." << endl;
 
                 gerenciador.comprime(metodo);
                 metodosTaxas[vezesCompressao] = metodo;

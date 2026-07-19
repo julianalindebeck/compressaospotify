@@ -4,8 +4,8 @@ using namespace std;
 #include <string>
 
 LZ77::LZ77(){
-    nd = 6;
-    nb = 4;
+    nd = 256;
+    nb = 16;
 }
 
 LZ77::~LZ77(){}

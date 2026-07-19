@@ -269,7 +269,7 @@ void manipulacaoArquivos::comprime(int metodo){
             }
         }
 
-        tamanhoComprimido = qtdTuplas * 14;
+        tamanhoComprimido = qtdTuplas * 15;
     }
     else{
         // escrever o nome + a tabela no arquivo
@@ -295,7 +295,7 @@ void manipulacaoArquivos::comprime(int metodo){
 
         int bitsPorCodigo = 8; 
         if (totalElementosDicionario > 256) {
-            bitsPorCodigo = (int)ceil(log2(totalElementosDicionario));
+            bitsPorCodigo = ceil(log2(totalElementosDicionario));
         }
 
         tamanhoComprimido = qtdCodigos * bitsPorCodigo;
