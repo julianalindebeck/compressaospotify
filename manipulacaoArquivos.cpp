@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>  
 #include <iterator>
+#include <cmath>
 
 using namespace std;
 
@@ -196,7 +197,7 @@ string manipulacaoArquivos::comprime(string str, int metodo){
 string manipulacaoArquivos::descomprime(string str, int metodo){
     if (metodo == 0){
         Huffman novaDescompressao;
-        return novaDescompressao.descompressao(novaDescompressao.constroi(str));
+        return novaDescompressao.descompressao(str);
     }
     else if (metodo == 1){
         LZ77 novaDescompressao;
@@ -204,7 +205,7 @@ string manipulacaoArquivos::descomprime(string str, int metodo){
     }
     else{
         LZW novaDescompressao;
-        return novaDescompressao.descomprime(novaDescompressao.comprime(str)); 
+        return novaDescompressao.descomprime(str); 
     }
 }
 
@@ -228,40 +229,83 @@ void manipulacaoArquivos::escreveBinario(string comprimida){
 void manipulacaoArquivos::comprime(int metodo){
     // esse método que vai fazer tudo: pega o método, ai le os arquivos, pegando a string.
     string arquivosRecuperados = lerArquivoCompressao(arquivos, n);
-    cout << "Recuperado dos arquivos: " << arquivosRecuperados << endl;
+    // cout << "Recuperado dos arquivos: " << arquivosRecuperados << endl;
     // Usa o método para comprimir a string
     string comprimida = comprime(arquivosRecuperados, metodo);
 
-    cout << "Comprimida: " << comprimida;
+    // cout << "Comprimida: " << comprimida;
     // dependendo do método, escrevemos as infos no arquivo antes sobre o método
 
+    int tamanhoOriginal = arquivosRecuperados.size() * 8;
+    int tamanhoComprimido;
     string infoMetodo;
     if (metodo == 0){
         // escrever o nome do método + a árvore no arquivo
         infoMetodo += "HUFFMAN\n";
+        tamanhoComprimido = comprimida.size();
     }
     else if (metodo == 1){
         // escrever só o nome do método para descomprimir
         infoMetodo += "LZ77\n";
+
+        int qtdTuplas = 0;
+        int i = 0;
+        while (i < comprimida.size()) {
+            if (comprimida[i] == '(') {
+                qtdTuplas++;
+                i++; 
+                while (i < comprimida.size() && comprimida[i] != ',') i++; 
+                i++; 
+                while (i < comprimida.size() && comprimida[i] != ',') i++; 
+                i++; 
+                if (i + 4 <= comprimida.size() && comprimida.substr(i, 4) == "null") {
+                    i += 4;
+                } else {
+                    i++; 
+                }
+                i++; 
+            } else {
+                i++;
+            }
+        }
+
+        tamanhoComprimido = qtdTuplas * 14;
     }
     else{
         // escrever o nome + a tabela no arquivo
         infoMetodo += "LZW\n";
-    }
 
-    // taxa compressao 
+        int qtdCodigos = 0;
+        int totalElementosDicionario = 0;
+        
+        int posFimDic = comprimida.find("]\n");
+        if (posFimDic != string::npos) {
+            for (int i = 0; i < posFimDic; i++) {
+                if (comprimida[i] == '(') {
+                    totalElementosDicionario++;
+                }
+            }
+            
+            for (int i = posFimDic + 2; i < comprimida.size(); i++) {
+                if (comprimida[i] == '(') {
+                    qtdCodigos++;
+                }
+            }
+        }
 
-    int tamanhoCompressao;
-    if (comprimida.length() % 8 == 0){
-        tamanhoCompressao = comprimida.length()/8;
+        int bitsPorCodigo = 8; 
+        if (totalElementosDicionario > 256) {
+            bitsPorCodigo = (int)ceil(log2(totalElementosDicionario));
+        }
+
+        tamanhoComprimido = qtdCodigos * bitsPorCodigo;
     }
-    else{
-        tamanhoCompressao = (comprimida.length()/8) + 1;
-    }
-    taxa = (float)(arquivosRecuperados.length() - tamanhoCompressao)/ arquivosRecuperados.length();
-    taxa *= 100;
 
     infoMetodo += comprimida;
+   
+    // taxa compressao 
+    
+    taxa = (1.0 - (float)tamanhoComprimido / tamanhoOriginal) * 100;
 
     // escrevemos o arquivo binário com a compressao da string concatenada
     // salva o arquivo .bin no diretório
@@ -351,6 +395,8 @@ void manipulacaoArquivos::descomprime(int metodo){
         cout << endl << "DESCOMPRIMINDO POR HUFFMAN..." << endl;
         // precisa pegar a árvore passada e dps descomprimir
         string dadosComprimidos((istreambuf_iterator<char>(arquivo_binario)), istreambuf_iterator<char>());
+        string dadosDescomprimidos = descomprime(dadosComprimidos, 0);
+        escreveDescompressaoTXT(dadosDescomprimidos, 0);
     }
     else if (metodo == 1){
         // descomprime por LZ77
@@ -364,6 +410,8 @@ void manipulacaoArquivos::descomprime(int metodo){
         cout << endl << "DESCOMPRIMINDO POR LZW..." << endl;
         // precisa pegar a tabela usada e depois descomprimir
         string dadosComprimidos((istreambuf_iterator<char>(arquivo_binario)), istreambuf_iterator<char>());
+        string dadosDescomprimidos = descomprime(dadosComprimidos, 2);
+        escreveDescompressaoTXT(dadosDescomprimidos, 2);
     }
 
     arquivo_binario.close();

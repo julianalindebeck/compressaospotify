@@ -83,7 +83,14 @@ string LZW::comprime(string str){
         }
     }
 
-    string stringComprimida = "";
+    string stringComprimida = "[";
+    for (int i = 0; i < tamDic; i++){
+        stringComprimida += "(" + dic[i] + ")";
+        if(i < tamDic - 1)
+            stringComprimida += ",";
+    }
+    stringComprimida += "]\n";
+
     for (int i = 0; i < tamCod; i++) {
         stringComprimida += "(" + to_string(codigo[i]) + ")";
         if(i < tamCod - 1)
@@ -93,12 +100,58 @@ string LZW::comprime(string str){
 }
 
 string LZW::descomprime(string str){
-    string descomprimida= "";
-    for(int i=0; i<str.length(); i++){
-        if(str[i] == '('){
-            descomprimida+=dic[str[i+1]-'0'];
+    int i = 0;
+    
+    if (str.length() > 0 && str[i] == '[') i++; 
+    
+    while (i < str.length()) {
+        if (str[i] == ']' && i + 1 < str.length() && str[i+1] == '\n') {
+            i += 2;
+            break;
+        }
+
+        if (str[i] == '(') {
+            i++;
+            string prefixo = "";
+            
+            int j = i;
+            while (j < str.length()) {
+                if (str[j] == ')') {
+                    if ((j + 1 < str.length() && str[j+1] == ',' && j + 2 < str.length() && str[j+2] == '(') ||
+                        (j + 1 < str.length() && str[j+1] == ']' && j + 2 < str.length() && str[j+2] == '\n')) {
+                        break; 
+                    }
+                }
+                prefixo += str[j];
+                j++;
+            }
+            i = j;
+            
+            dic[tamDic++] = prefixo;
+            if (tamDic == capacidadeDic) aumentaDic();
+            
+        } else {
+            i++; 
         }
     }
+
+    string descomprimida = "";
+    while (i < str.length()) {
+        if (str[i] == '(') {
+            i++;
+            string numStr = "";
+            while (i < str.length() && str[i] != ')') {
+                numStr += str[i];
+                i++;
+            }
+            if (!numStr.empty()) {
+                int cod = stoi(numStr); 
+                descomprimida += dic[cod];
+            }
+        }
+        i++;
+    }
+    
     return descomprimida;
 }
 
@@ -119,7 +172,7 @@ void LZW::aumentaCod(){
     capacidadeCod *= 2;
     int* novoCod = new int[capacidadeCod];
 
-    for (int i = 0; i < tamDic; i++){
+    for (int i = 0; i < tamCod; i++){
         novoCod[i] = codigo[i];
     }
 
