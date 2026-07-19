@@ -52,6 +52,8 @@ string LZ77::comprime(string str){
             compressao += ",";
         }
     }
+
+    delete[] codigo;
     return compressao;
 }
 
@@ -79,8 +81,11 @@ string LZ77::descomprime(string str){
             i++; 
             
             string s_char = "";
-            while (i < str.length() && str[i] != ')') {
-                s_char += str[i];
+            if (i + 4 <= str.length() && str.substr(i, 4) == "null") {
+                s_char = "null";
+                i += 4;
+            } else {
+                s_char = str[i];
                 i++;
             }
             
